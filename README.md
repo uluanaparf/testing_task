@@ -13,7 +13,7 @@
 
 ## Запуск программы
 
-1. клонирование репозитория `git clone`
+1. клонирование репозитория `git clone https://github.com/uluanaparf/testing_task.git`
 2. добавление файла `application.properties` в пакет resources
 3. настройка файла `application.properties`
 ```properties
