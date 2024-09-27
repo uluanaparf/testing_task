@@ -1,47 +1,53 @@
 package com.example.library.controller;
 
+import com.example.library.DTO.JwtAuthenticationResponse;
+import com.example.library.DTO.LoginRequest;
 import com.example.library.DTO.UserDTO;
 import com.example.library.model.User;
-import com.example.library.security.JwtService;
+import com.example.library.security.JwtTokenProvider;
 import com.example.library.service.UserService;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/API/User")
 public class UserController {
-    private final UserService userService;
-    private final JwtService jwtService;
-    private final AuthenticationManager authenticationManager;
-    UserController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager) {
-        this.userService = userService;
-        this.jwtService = jwtService;
-        this.authenticationManager = authenticationManager;
-    }
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtTokenProvider tokenProvider;
+
+    @Autowired
+    private UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> addNewUser(@RequestBody User user) {
-        String response = userService.addUser(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    public ResponseEntity<?> registerUser(@RequestBody UserDTO userDTO) {
+        User user = new User();
+        user.setUsername(userDTO.getUsername());
+        user.setPassword(userDTO.getPassword());
+        userService.saveUser(user);
+        return ResponseEntity.ok("User registered successfully");
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> authenticateAndGetToken(@RequestBody UserDTO userDTO) {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDTO.getUsername(), userDTO.getPassword()));
-        if (authentication.isAuthenticated()) {
-            String token = jwtService.generateToken(userDTO.getUsername());
-            return ResponseEntity.ok(token);
-        } else {
-            throw new UsernameNotFoundException("Invalid user request!");
-        }
+    public ResponseEntity<?> authenticateUser(@RequestBody LoginRequest loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                )
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = tokenProvider.generateToken(authentication);
+        return ResponseEntity.ok(new JwtAuthenticationResponse(token));
     }
-
 }

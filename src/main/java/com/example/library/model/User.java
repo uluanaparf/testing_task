@@ -3,22 +3,16 @@ package com.example.library.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "users")
+@Table(name = "user")
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private String password;
-    private String role;
 
-    public User() {};
-    public User(Long id, String name, String password, String role) {
-        this.id = id;
-        this.name = name;
-        this.password = password;
-        this.role = role;
-    }
+    @Column(nullable = false, unique = true)
+    private String username;
+
+    @Column(nullable = false,unique = true)
+    private String password;
 
     public Long getId() {
         return id;
@@ -28,12 +22,12 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -42,13 +36,5 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 }
