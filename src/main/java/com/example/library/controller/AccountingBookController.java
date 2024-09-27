@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
-@RequestMapping("/API/AccountingBook")
+@RequestMapping("/auth/API/accountingBook")
 public class AccountingBookController {
 
     @Autowired
